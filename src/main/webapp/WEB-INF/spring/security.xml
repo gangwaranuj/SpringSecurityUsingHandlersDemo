@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.2.xsd">
+
+	<security:http use-expressions="true">
+		<security:headers disabled="true" />
+		<security:csrf disabled="true" />
+		<!-- <security:intercept-url pattern="/failure" access="permitAll" /> -->
+		<security:intercept-url pattern="/rest/user/failedAuthentication" access="permitAll" />
+		
+		<security:intercept-url pattern="/**" access="permitAll" />
+		<security:form-login login-processing-url="/rest/authenticate"
+			login-page="/rest/user/failedAuthentication" username-parameter="username"
+			password-parameter="password" authentication-success-handler-ref="restsuccesshandler"
+			authentication-failure-handler-ref="restfailurehandler" />
+
+		<security:logout logout-url="/rest/logout" delete-cookies="JSESSIONID" success-handler-ref="successlogouthandler" />
+	</security:http>
+
+
+
+	<bean id="successlogouthandler"
+		class="org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler"></bean>
+	<bean id="restsuccesshandler"
+		class="com.thinksys.security.sec.RestAuthenticationSuccessHandler"></bean>
+	<bean id="restfailurehandler"
+		class="com.thinksys.security.sec.RestAuthenticationFailureHandler"></bean>
+	<bean id="userDetailsService" class="com.thinksys.security.serviceImpl.UserDetailsServiceImpl"></bean>
+
+	<security:authentication-manager>
+		<security:authentication-provider
+			user-service-ref="userDetailsService">
+		</security:authentication-provider>
+	</security:authentication-manager>
+</beans>
